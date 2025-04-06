@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .placeholder {
+            width: 150px;
+            height: 150px;
+            background: #ff9966;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            color: white;
+            margin: 10px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mascot {
+            background: #ff6633;
+        }
+        
+        .ears {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+        }
+        
+        .ear {
+            width: 30px;
+            height: 30px;
+            background: #ff8c66;
+            position: absolute;
+            border-radius: 15px;
+        }
+        
+        .ear.left {
+            left: 35px;
+            transform: rotate(-30deg);
+        }
+        
+        .ear.right {
+            right: 35px;
+            transform: rotate(30deg);
+        }
+        
+        .face {
+            width: 80px;
+            height: 80px;
+            background: #ff8c66;
+            border-radius: 40px;
+            position: relative;
+            margin-top: 20px;
+        }
+        
+        .eye {
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 25px;
+        }
+        
+        .eye.left {
+            left: 20px;
+        }
+        
+        .eye.right {
+            right: 20px;
+        }
+        
+        .nose {
+            width: 15px;
+            height: 10px;
+            background: #ff4d00;
+            border-radius: 7px;
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .whiskers {
+            position: absolute;
+            top: 45px;
+            width: 100%;
+        }
+        
+        .whisker {
+            width: 25px;
+            height: 2px;
+            background: #ff4d00;
+            position: absolute;
+        }
+        
+        .whisker.left1 {
+            left: -20px;
+            transform: rotate(-30deg);
+        }
+        
+        .whisker.left2 {
+            left: -20px;
+            top: 10px;
+        }
+        
+        .whisker.right1 {
+            right: -20px;
+            transform: rotate(30deg);
+        }
+        
+        .whisker.right2 {
+            right: -20px;
+            top: 10px;
+        }
+        
+        .month {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="placeholder mascot">
+        <div class="ears">
+            <div class="ear left"></div>
+            <div class="ear right"></div>
+        </div>
+        <div class="face">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="nose"></div>
+            <div class="whiskers">
+                <div class="whisker left1"></div>
+                <div class="whisker left2"></div>
+                <div class="whisker right1"></div>
+                <div class="whisker right2"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="placeholder">
+        <div class="icon">⛷️</div>
+        <div class="month">January</div>
+    </div>
+
+    <div class="placeholder">
+        <div class="icon">❤️</div>
+        <div class="month">February</div>
+    </div>
+
+    <div class="placeholder">
+        <div class="icon">☔</div>
+        <div class="month">March</div>
+    </div>
+
+    <div class="placeholder">
+        <div class="icon">🌸</div>
+        <div class="month">April</div>
+    </div>
+
+    <div class="placeholder">
+        <div class="icon">🪁</div>
+        <div class="month">May</div>
+    </div>
+
+    <div class="placeholder">
+        <div class="icon">🏊</div>
+        <div class="month">June</div>
+    </div>
+
+    <div class="placeholder">
+        <div class="icon">🏖️</div>
+        <div class="month">July</div>
+    </div>
+
+    <div class="placeholder">
+        <div class="icon">☀️</div>
+        <div class="month">August</div>
+    </div>
+
+    <div class="placeholder">
+        <div class="icon">📚</div>
+        <div class="month">September</div>
+    </div>
+
+    <div class="placeholder">
+        <div class="icon">🎃</div>
+        <div class="month">October</div>
+    </div>
+
+    <div class="placeholder">
+        <div class="icon">🍂</div>
+        <div class="month">November</div>
+    </div>
+
+    <div class="placeholder">
+        <div class="icon">🎄</div>
+        <div class="month">December</div>
+    </div>
+</body>
+</html>

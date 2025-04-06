@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2>Edit Schedule</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="caregiver" class="form-label">Caregiver</label>
+                        <select class="form-select" id="caregiver" name="caregiver" required>
+                            <option value="" disabled selected>Select a caregiver</option>
+                            <option value="Julie">Julie</option>
+                            <option value="Tony & Morena">Tony & Morena</option>
+                            <option value="Day Care (Regular)">Day Care (Regular)</option>
+                            <option value="Day Care (Casual)">Day Care (Casual)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Save Schedule</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

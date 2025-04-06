@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <button id="prevMonth" class="btn btn-secondary">&lt; Previous</button>
+            <button id="nextMonth" class="btn btn-secondary">Next &gt;</button>
+            <button id="todayButton" class="btn btn-success">Today</button>
+        </div>
+        {% if current_user.is_admin %}
+        <a href="{{ url_for('edit_schedule') }}" class="btn btn-primary">Add Entry</a>
+        {% endif %}
+    </div>
+    
+    <div id="calendar"></div>
+
+    <!-- Modal for viewing/editing schedule -->
+    <div class="modal fade" id="scheduleModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Schedule Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Date:</strong> <span id="modalDate"></span></p>
+                    <p><strong>Caregiver:</strong> <span id="modalCaregiver"></span></p>
+                    <p><strong>Notes:</strong> <span id="modalNotes"></span></p>
+                </div>
+                <div class="modal-footer">
+                    {% if current_user.is_admin %}
+                    <button type="button" class="btn btn-primary" id="editButton">Edit</button>
+                    <button type="button" class="btn btn-danger" id="deleteButton">Delete</button>
+                    {% endif %}
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for editing schedule -->
+    {% if current_user.is_admin %}
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Schedule</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editForm" method="POST">
+                    <div class="modal-body">
+                        <input type="hidden" id="editDate" name="date">
+                        <div class="mb-3">
+                            <label for="editCaregiver" class="form-label">Caregiver</label>
+                            <select class="form-select" id="editCaregiver" name="caregiver" required>
+                                <option value="Julie">Julie</option>
+                                <option value="Tony & Morena">Tony & Morena</option>
+                                <option value="Day Care (Regular)">Day Care (Regular)</option>
+                                <option value="Day Care (Casual)">Day Care (Casual)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editNotes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="editNotes" name="notes" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+let currentDate = new Date();
+const scheduleData = {{ schedules|tojson|safe }};
+
+function getCaregiverClass(caregiver) {
+    const normalized = caregiver.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    return 'caregiver-' + normalized;
+}
+
+function formatDate(date) {
+    return date.toISOString().split('T')[0];
+}
+
+function showScheduleModal(date, schedule) {
+    const modal = new bootstrap.Modal(document.getElementById('scheduleModal'));
+    document.getElementById('modalDate').textContent = date;
+    document.getElementById('modalCaregiver').textContent = schedule ? schedule.caregiver : 'No schedule';
+    document.getElementById('modalNotes').textContent = schedule ? (schedule.notes || 'No notes') : 'No notes';
+    
+    {% if current_user.is_admin %}
+    const editButton = document.getElementById('editButton');
+    const deleteButton = document.getElementById('deleteButton');
+    
+    // Remove any existing event listeners
+    const newEditButton = editButton.cloneNode(true);
+    const newDeleteButton = deleteButton.cloneNode(true);
+    editButton.parentNode.replaceChild(newEditButton, editButton);
+    deleteButton.parentNode.replaceChild(newDeleteButton, deleteButton);
+    
+    if (schedule) {
+        newEditButton.addEventListener('click', function() {
+            modal.hide();
+            showEditModal(date, schedule);
+        });
+        newDeleteButton.addEventListener('click', function() {
+            if (confirm('Are you sure you want to delete this schedule?')) {
+                window.location.href = `/delete_schedule/${schedule.id}`;
+            }
+        });
+        newEditButton.style.display = 'block';
+        newDeleteButton.style.display = 'block';
+    } else {
+        newEditButton.style.display = 'none';
+        newDeleteButton.style.display = 'none';
+    }
+    {% endif %}
+    
+    modal.show();
+}
+
+{% if current_user.is_admin %}
+function showEditModal(date, schedule) {
+    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+    document.getElementById('editDate').value = date;
+    document.getElementById('editCaregiver').value = schedule ? schedule.caregiver : '';
+    document.getElementById('editNotes').value = schedule ? schedule.notes : '';
+    
+    const form = document.getElementById('editForm');
+    form.action = schedule ? `/edit_schedule/${schedule.id}` : '/edit_schedule';
+    
+    editModal.show();
+}
+{% endif %}
+
+function renderCalendar(date) {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    
+    let html = `
+        <h3 class="text-center">${new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(date)}</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    let dayCount = 1;
+    const today = new Date();
+    
+    for (let i = 0; i < 6; i++) {
+        html += '<tr>';
+        for (let j = 0; j < 7; j++) {
+            if ((i === 0 && j < firstDay.getDay()) || dayCount > lastDay.getDate()) {
+                html += '<td></td>';
+            } else {
+                const currentDate = new Date(year, month, dayCount);
+                const dateStr = formatDate(currentDate);
+                const schedule = scheduleData.find(s => s.date === dateStr);
+                
+                const isToday = currentDate.toDateString() === today.toDateString();
+                const classes = ['calendar-day'];
+                if (isToday) classes.push('today');
+                if (schedule) classes.push(getCaregiverClass(schedule.caregiver));
+                
+                html += `
+                    <td class="${classes.join(' ')}" onclick="showScheduleModal('${dateStr}', ${schedule ? JSON.stringify(schedule) : null})">
+                        <div class="date">${dayCount}</div>
+                        ${schedule ? `
+                            <div class="caregiver">${schedule.caregiver}</div>
+                            ${schedule.notes ? `<div class="notes">${schedule.notes}</div>` : ''}
+                        ` : ''}
+                    </td>
+                `;
+                dayCount++;
+            }
+        }
+        html += '</tr>';
+        if (dayCount > lastDay.getDate()) break;
+    }
+    
+    html += '</tbody></table>';
+    document.getElementById('calendar').innerHTML = html;
+}
+
+document.getElementById('prevMonth').addEventListener('click', function() {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    renderCalendar(currentDate);
+});
+
+document.getElementById('nextMonth').addEventListener('click', function() {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    renderCalendar(currentDate);
+});
+
+document.getElementById('todayButton').addEventListener('click', function() {
+    currentDate = new Date();
+    renderCalendar(currentDate);
+});
+
+renderCalendar(currentDate);
+</script>
+{% endblock %}
